@@ -44,6 +44,20 @@ db.serialize(() => {
     `);
 });
 
+db.run(`
+    CREATE TABLE IF NOT EXISTS posts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      country_code TEXT NOT NULL,
+      visit_date TEXT NOT NULL,
+      author_id INTEGER NOT NULL,
+      media_url TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (author_id) REFERENCES users(id)
+    );
+  `);
+
 
 
 module.exports = db;
