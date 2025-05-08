@@ -1,0 +1,230 @@
+openapi: 3.0.0
+info:
+  title: Secure API Middleware
+  version: 1.0.0
+  description: API Documentation for your backend
+
+servers:
+  - url: http://localhost:5000
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        201:
+          description: Registered successfully
+
+  /auth/login:
+    post:
+      summary: Login an existing user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login success
+
+  /keys/generate:
+    post:
+      tags:
+        - API Keys
+      summary: Generate a new API key
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: My API Key
+      responses:
+        '201':
+          description: API key created successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+
+  /keys/list:
+    get:
+      tags:
+        - API Keys
+      summary: List all API keys for the authenticated user
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      responses:
+        '200':
+          description: List of API keys
+        '401':
+          description: Unauthorized
+
+  /keys/status/{id}:
+    patch:
+      tags:
+        - API Keys
+      summary: Toggle activation status of an API key
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: API key ID
+      responses:
+        '200':
+          description: API key status toggled
+        '404':
+          description: API key not found
+
+  /keys/delete/{id}:
+    delete:
+      tags:
+        - API Keys
+      summary: Delete an API key
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: API key ID
+      responses:
+        '200':
+          description: API key deleted
+        '404':
+          description: API key not found
+
+  /api/countries:
+    get:
+      tags:
+        - Country Data
+      summary: Fetch all countries (requires valid API key)
+      security:
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: List of countries
+        '401':
+          description: Missing or invalid API key
+        '500':
+          description: Failed to fetch data from external API
+
+  /users:
+    get:
+      tags:
+        - User Management
+      summary: Get all users (Admin only)
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      responses:
+        '200':
+          description: List of users
+        '401':
+          description: Unauthorized
+
+  /users/{id}:
+    put:
+      tags:
+        - User Management
+      summary: Update a user (Admin only)
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                role:
+                  type: string
+                  enum: [USER, ADMIN]
+      responses:
+        '200':
+          description: User updated
+        '400':
+          description: Invalid input
+        '404':
+          description: User not found
+
+    delete:
+      tags:
+        - User Management
+      summary: Delete a user (Admin only)
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: User ID
+      responses:
+        '200':
+          description: User deleted
+        '404':
+          description: User not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+    csrfAuth:
+      type: apiKey
+      in: header
+      name: x-csrf-token
+
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
