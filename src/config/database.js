@@ -59,5 +59,32 @@ db.run(`
   `);
 
 
+// --- Follows ---
+db.run(`
+    CREATE TABLE IF NOT EXISTS follows (
+      follower_id INTEGER NOT NULL,
+      following_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (follower_id, following_id),
+      FOREIGN KEY (follower_id) REFERENCES users(id),
+      FOREIGN KEY (following_id) REFERENCES users(id)
+    );
+  `);
+
+// --- Likes/Dislikes ---
+db.run(`
+    CREATE TABLE IF NOT EXISTS likes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      post_id INTEGER NOT NULL,
+      is_like INTEGER NOT NULL,        -- 1 for like, 0 for dislike
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (post_id) REFERENCES posts(id)
+    );
+  `);
+
+
+
 
 module.exports = db;
