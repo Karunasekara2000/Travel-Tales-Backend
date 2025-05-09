@@ -6,10 +6,11 @@ const authRoutes = require("./route/authRoute");
 const apiKeyRoutes = require("./route/apiKeyRoutes");
 const countriesRoute = require("./route/countriesRoute");
 const userRoute = require("./route/userRoute");
+const postRoutes = require("./route/postRoute");
+const path = require('path');
 const cookieParser = require("cookie-parser");
 const {info} = require("./util/loggerUtil");
 const swaggerUi = require("swagger-ui-express");
-const path = require("path");
 const YAML = require("yamljs");
 
 const swaggerDocument = YAML.load(path.join(__dirname, "swagger.yaml"));
@@ -40,6 +41,19 @@ app.use("/auth", authRoutes);
 app.use("/keys", apiKeyRoutes);
 app.use("/api/countries", countriesRoute);
 app.use("/users", userRoute)
+
+
+// Post routes
+app.use("/auth", authRoutes);
+app.use("/keys", apiKeyRoutes);
+app.use("/api/countries", countriesRoute);
+app.use("/users", userRoute);
+app.use("/api/posts", postRoutes);
+
+
+//uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
