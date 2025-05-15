@@ -10,18 +10,54 @@ async function getPost(id) {
 }
 
 async function createPost(userId, postData) {
-    // postData: { title, content, countryCode, visitDate, mediaUrl }
     return postDao.createPost({ ...postData, authorId: userId });
 }
 
 async function updatePost(id, userId, postData) {
-    // throws if not found or not the author
     return postDao.updatePost(id, userId, postData);
 }
 
 async function deletePost(id, userId) {
-    // throws if not found or not the author
     return postDao.deletePost(id, userId);
+}
+
+// --- Likes ---
+async function likeOrDislikePost(userId, postId, isLike) {
+    return postDao.likePost(userId, postId, isLike);
+}
+
+async function removeLikeOrDislike(userId, postId) {
+    return postDao.unlikePost(userId, postId);
+}
+
+// --- Follows ---
+async function followUser(followerId, followingId) {
+    return postDao.followUser(followerId, followingId);
+}
+
+async function unfollowUser(followerId, followingId) {
+    return postDao.unfollowUser(followerId, followingId);
+}
+
+async function getUserFollowers(userId) {
+    return postDao.getFollowers(userId);
+}
+
+async function getUserFollowing(userId) {
+    return postDao.getFollowing(userId);
+}
+
+// --- Comments ---
+async function fetchComments(postId) {
+    return postDao.getCommentsByPost(postId);
+}
+
+async function createComment(postId, userId, comment) {
+    return postDao.addComment(postId, userId, comment);
+}
+
+async function removeComment(commentId, userId) {
+    return postDao.deleteComment(commentId, userId);
 }
 
 module.exports = {
@@ -30,4 +66,13 @@ module.exports = {
     createPost,
     updatePost,
     deletePost,
+    likeOrDislikePost,
+    removeLikeOrDislike,
+    followUser,
+    unfollowUser,
+    getUserFollowers,
+    getUserFollowing,
+    fetchComments,
+    createComment,
+    removeComment
 };

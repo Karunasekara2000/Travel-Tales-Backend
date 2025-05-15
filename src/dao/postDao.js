@@ -9,12 +9,12 @@ function getPosts({ country, author, page = 1, limit = 10, sort = 'created_at' }
         const where = [];
 
         if (country) {
-            where.push('p.country_code = ?');
-            params.push(country.toUpperCase());
+            where.push('LOWER(p.country_code) LIKE LOWER(?)');
+            params.push(`%${country}%`);
         }
         if (author) {
-            where.push('u.username = ?');
-            params.push(author);
+            where.push('LOWER(u.username) LIKE LOWER(?)');
+            params.push(`%${author}%`);
         }
 
         const whereSQL = where.length ? `WHERE ${where.join(' AND ')}` : '';
@@ -125,10 +125,142 @@ function deletePost(id, authorId) {
     });
 }
 
+
+// --- Likes ---
+function likePost(userId, postId, isLike) {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            INSERT INTO likes (user_id, post_id, is_like)
+            VALUES (?, ?, ?)
+            ON CONFLICT(user_id, post_id) DO UPDATE SET is_like = ?;
+        `;
+        db.run(sql, [userId, postId, isLike,  isLike], function (err) {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+}
+
+function unlikePost(userId, postId) {
+    return new Promise((resolve, reject) => {
+        const sql = `DELETE FROM likes WHERE user_id = ? AND post_id = ?;`;
+        db.run(sql, [userId, postId], function(err) {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+}
+
+// --- Follows ---
+function followUser(followerId, followingId) {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            INSERT OR IGNORE INTO follows (follower_id, following_id)
+            VALUES (?, ?);
+        `;
+        db.run(sql, [followerId, followingId], function(err) {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+}
+
+function unfollowUser(followerId, followingId) {
+    return new Promise((resolve, reject) => {
+        const sql = `DELETE FROM follows WHERE follower_id = ? AND following_id = ?;`;
+        db.run(sql, [followerId, followingId], function(err) {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+}
+
+function getFollowers(userId) {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT u.id, u.username
+            FROM users u
+            JOIN follows f ON f.follower_id = u.id
+            WHERE f.following_id = ?;
+        `;
+        db.all(sql, [userId], (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows);
+        });
+    });
+}
+
+function getFollowing(userId) {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT u.id, u.username
+            FROM users u
+            JOIN follows f ON f.following_id = u.id
+            WHERE f.follower_id = ?;
+        `;
+        db.all(sql, [userId], (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows);
+        });
+    });
+}
+
+// --- Comments ---
+function getCommentsByPost(postId) {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT c.id, c.comment, c.created_at, u.username AS author
+            FROM comments c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.post_id = ?
+            ORDER BY c.created_at DESC
+        `;
+        db.all(sql, [postId], (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows);
+        });
+    });
+}
+
+function addComment(postId, userId, comment) {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            INSERT INTO comments (post_id, user_id, comment)
+            VALUES (?, ?, ?)
+        `;
+        db.run(sql, [postId, userId, comment], function (err) {
+            if (err) return reject(err);
+            resolve({ id: this.lastID, postId, userId, comment });
+        });
+    });
+}
+
+function deleteComment(commentId, userId) {
+    return new Promise((resolve, reject) => {
+        const sql = `DELETE FROM comments WHERE id = ? AND user_id = ?`;
+        db.run(sql, [commentId, userId], function (err) {
+            if (err) return reject(err);
+            if (this.changes === 0) return reject(new Error("Not found or unauthorized"));
+            resolve();
+        });
+    });
+}
+
+
+
 module.exports = {
     getPosts,
     getPostById,
     createPost,
     updatePost,
-    deletePost
+    deletePost,
+    likePost,
+    unlikePost,
+    followUser,
+    unfollowUser,
+    getFollowers,
+    getFollowing,
+    getCommentsByPost,
+    addComment,
+    deleteComment
 };
