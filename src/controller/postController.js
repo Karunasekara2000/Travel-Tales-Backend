@@ -23,13 +23,14 @@ const getPostById = async (req, res, next) => {
 
 const createPost = async (req, res, next) => {
     try {
-        // req.user.id comes from authMiddleware
         const post = await postService.createPost(req.user.id, {
             title: req.body.title,
             content: req.body.content,
             countryCode: req.body.countryCode,
             visitDate: req.body.visitDate,
-            mediaUrl: req.file ? `/upload/${req.file.filename}` : null,
+            mediaUrl: req.body.mediaUrl,
+            capital: req.body.capital,
+            currency: req.body.currency,
         });
         res.status(201).json(post);
     } catch (err) {
@@ -47,7 +48,9 @@ const updatePost = async (req, res, next) => {
                 content: req.body.content,
                 countryCode: req.body.countryCode,
                 visitDate: req.body.visitDate,
-                mediaUrl: req.file ? `/uploads/${req.file.filename}` : req.body.mediaUrl,
+                mediaUrl: req.body.mediaUrl,
+                capital: req.body.capital,
+                currency: req.body.currency,
             }
         );
         res.json(updated);
@@ -99,7 +102,7 @@ const removeLikes = async (req, res, next) => {
     }
 };
 
-// --- Follows ---
+
 const followUsers = async (req, res, next) => {
     try {
         await postService.followUser(req.user.id, +req.params.id);
@@ -136,7 +139,6 @@ const getFollowingList = async (req, res, next) => {
     }
 };
 
-// --- Comments ---
 const getCommentList = async (req, res, next) => {
     try {
         const comments = await postService.fetchComments(+req.params.postId);
