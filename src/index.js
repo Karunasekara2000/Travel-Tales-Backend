@@ -47,7 +47,6 @@ app.use("/users", userRoute)
 app.use("/auth", authRoutes);
 app.use("/keys", apiKeyRoutes);
 app.use("/api/countries", countriesRoute);
-app.use("/users", userRoute);
 app.use("/api/posts", postRoutes);
 
 
