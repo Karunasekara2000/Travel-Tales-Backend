@@ -4,7 +4,7 @@ const sqlite3 = require('sqlite3').verbose();
 const dbFile = process.env.DB_PATH;
 const db = new sqlite3.Database(`${dbFile}`);
 
-
+// --- Users ---
 db.serialize(() => {
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
@@ -16,7 +16,7 @@ db.serialize(() => {
     `);
 });
 
-
+// --- API keys ---
 db.serialize(() => {
     db.run(`
         CREATE TABLE IF NOT EXISTS api_keys (
@@ -32,6 +32,7 @@ db.serialize(() => {
     `);
 });
 
+// --- Logs ---
 db.serialize(() => {
     db.run(`
         CREATE TABLE IF NOT EXISTS logs (
@@ -47,6 +48,7 @@ db.serialize(() => {
     `);
 });
 
+// --- Follows ---
 db.run(`
     CREATE TABLE IF NOT EXISTS posts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,38 +67,34 @@ db.run(`
 // --- Follows ---
 db.run(`
     CREATE TABLE IF NOT EXISTS follows (
-      follower_id INTEGER NOT NULL,
-      following_id INTEGER NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (follower_id, following_id),
-      FOREIGN KEY (follower_id) REFERENCES users(id),
-      FOREIGN KEY (following_id) REFERENCES users(id)
-    );
-  `);
-
-// --- Likes/Dislikes ---
-db.run(`
-    CREATE TABLE IF NOT EXISTS likes (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
-      post_id INTEGER NOT NULL,
-      is_like INTEGER NOT NULL,        -- 1 for like, 0 for dislike
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id),
-      FOREIGN KEY (post_id) REFERENCES posts(id)
-    );
+        follower_id INTEGER NOT NULL,
+        following_id INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (follower_id, following_id)
+        );
 `);
 
+// --- Likes ---
 db.run(`
-        CREATE TABLE IF NOT EXISTS comments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            post_id INTEGER NOT NULL,
-            user_id INTEGER NOT NULL,
-            comment TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (post_id) REFERENCES posts(id),
-            FOREIGN KEY (user_id) REFERENCES users(id)
+    CREATE TABLE IF NOT EXISTS likes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        post_id INTEGER NOT NULL,
+        is_like INTEGER NOT NULL ,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (user_id, post_id)
         );
+`);
+
+// --- Comments ---
+db.run(`
+    CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        comment TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
 `);
 
 
