@@ -30,6 +30,8 @@ function getPosts({ country, author, page = 1, limit = 10, sort = 'created_at' }
         p.author_id    AS authorId,
         u.username     AS authorUsername,
         p.media_url    AS mediaUrl,
+        p.currency     AS currency,
+        p.capital      AS capital,
         p.created_at   AS createdAt,
         (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND is_like = 1) AS likeCount,
         (SELECT COUNT(*) FROM likes WHERE post_id = p.id AND is_like = 0) AS dislikeCount
@@ -70,14 +72,14 @@ function getPostById(id) {
 /**
  * Insert a new post and return the created record
  */
-function createPost({ title, content, countryCode, visitDate, authorId, mediaUrl }) {
+function createPost({ title, content, countryCode, visitDate, authorId, mediaUrl, capital, currency }) {
     return new Promise((resolve, reject) => {
         const sql = `
       INSERT INTO posts 
-        (title, content, country_code, visit_date, author_id, media_url)
-      VALUES (?, ?, ?, ?, ?, ?);
+        (title, content, country_code, visit_date, author_id, media_url,capital,currency)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?);
     `;
-        db.run(sql, [title, content, countryCode.toUpperCase(), visitDate, authorId, mediaUrl], function(err) {
+        db.run(sql, [title, content, countryCode.toUpperCase(), visitDate, authorId, mediaUrl, capital, currency], function(err) {
             if (err) return reject(err);
             // this.lastID contains the new post's ID
             getPostById(this.lastID).then(resolve).catch(reject);
@@ -88,7 +90,7 @@ function createPost({ title, content, countryCode, visitDate, authorId, mediaUrl
 /**
  * Update an existing post (only if the author matches)
  */
-function updatePost(id, authorId, { title, content, countryCode, visitDate, mediaUrl }) {
+function updatePost(id, authorId, { title, content, countryCode, visitDate, mediaUrl, capital, currency }) {
     return new Promise((resolve, reject) => {
         const sql = `
       UPDATE posts SET
@@ -96,12 +98,14 @@ function updatePost(id, authorId, { title, content, countryCode, visitDate, medi
         content = ?,
         country_code = ?,
         visit_date = ?,
-        media_url = ?
+        media_url = ?,
+        capital = ?,
+        currency = ?
       WHERE id = ? AND author_id = ?;
     `;
         db.run(
             sql,
-            [title, content, countryCode.toUpperCase(), visitDate, mediaUrl, id, authorId],
+            [title, content, countryCode.toUpperCase(), visitDate, mediaUrl, capital, currency, id, authorId],
             function(err) {
                 if (err) return reject(err);
                 if (this.changes === 0) return reject(new Error('Not found or unauthorized'));
