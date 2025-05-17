@@ -1,9 +1,9 @@
 require('dotenv').config();
 const sqlite3 = require('sqlite3').verbose();
 
-//const dbFile = process.env.DB_PATH;
-//const db = new sqlite3.Database(`${dbFile}`);
-const db = new sqlite3.Database('./auth.db');
+const dbFile = process.env.DB_PATH;
+const db = new sqlite3.Database(`${dbFile}`);
+
 
 // --- Users ---
 db.serialize(() => {
