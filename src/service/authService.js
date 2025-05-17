@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const authDAO = require("../dao/authDao");
 const { generateTokens } = require("../config/jwt");
 const logService = require("../service/logService");

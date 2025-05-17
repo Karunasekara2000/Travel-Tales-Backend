@@ -1,4 +1,4 @@
-const logDAO = require("../dao/logDAO");
+const logDAO = require("../dao/logDao");
 
 class LogService {
     async log(userId, action, apiKeyId, details) {

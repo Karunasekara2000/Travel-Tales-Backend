@@ -1,8 +1,9 @@
 require('dotenv').config();
 const sqlite3 = require('sqlite3').verbose();
 
-const dbFile = process.env.DB_PATH;
-const db = new sqlite3.Database(`${dbFile}`);
+//const dbFile = process.env.DB_PATH;
+//const db = new sqlite3.Database(`${dbFile}`);
+const db = new sqlite3.Database('./auth.db');
 
 // --- Users ---
 db.serialize(() => {
@@ -58,6 +59,8 @@ db.run(`
       visit_date TEXT NOT NULL,
       author_id INTEGER NOT NULL,
       media_url TEXT,
+      capital TEXT,  
+      currency TEXT,  
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (author_id) REFERENCES users(id)
     );
