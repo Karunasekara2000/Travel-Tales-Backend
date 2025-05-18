@@ -1,4 +1,3 @@
-// /backend/controllers/postController.js
 const postService = require('../service/postService');
 
 const getPosts = async (req, res, next) => {
