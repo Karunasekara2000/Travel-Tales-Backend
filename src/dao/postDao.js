@@ -38,7 +38,7 @@ function getPosts({ country, author, page = 1, limit = 10, sort = 'created_at' }
       FROM posts p
       JOIN users u ON u.id = p.author_id
       ${whereSQL}
-      ORDER BY p.${sort} DESC
+      ORDER BY likeCount DESC, p.${sort} DESC
       LIMIT ? OFFSET ?;
     `;
 
