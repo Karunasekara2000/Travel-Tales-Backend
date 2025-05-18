@@ -5,7 +5,7 @@ info:
   description: API Documentation for your backend
 
 servers:
-  - url: http://localhost:5000
+  - url: http://localhost:8000
 
 paths:
   /auth/register:
@@ -48,8 +48,7 @@ paths:
 
   /keys/generate:
     post:
-      tags:
-        - API Keys
+      tags: [API Keys]
       summary: Generate a new API key
       security:
         - bearerAuth: []
@@ -67,15 +66,10 @@ paths:
       responses:
         '201':
           description: API key created successfully
-        '400':
-          description: Invalid input
-        '401':
-          description: Unauthorized
 
   /keys/list:
     get:
-      tags:
-        - API Keys
+      tags: [API Keys]
       summary: List all API keys for the authenticated user
       security:
         - bearerAuth: []
@@ -83,13 +77,10 @@ paths:
       responses:
         '200':
           description: List of API keys
-        '401':
-          description: Unauthorized
 
   /keys/status/{id}:
     patch:
-      tags:
-        - API Keys
+      tags: [API Keys]
       summary: Toggle activation status of an API key
       security:
         - bearerAuth: []
@@ -100,17 +91,13 @@ paths:
           required: true
           schema:
             type: string
-          description: API key ID
       responses:
         '200':
           description: API key status toggled
-        '404':
-          description: API key not found
 
   /keys/delete/{id}:
     delete:
-      tags:
-        - API Keys
+      tags: [API Keys]
       summary: Delete an API key
       security:
         - bearerAuth: []
@@ -121,32 +108,23 @@ paths:
           required: true
           schema:
             type: string
-          description: API key ID
       responses:
         '200':
           description: API key deleted
-        '404':
-          description: API key not found
 
   /api/countries:
     get:
-      tags:
-        - Country Data
+      tags: [Country Data]
       summary: Fetch all countries (requires valid API key)
       security:
         - apiKeyAuth: []
       responses:
         '200':
           description: List of countries
-        '401':
-          description: Missing or invalid API key
-        '500':
-          description: Failed to fetch data from external API
 
   /users:
     get:
-      tags:
-        - User Management
+      tags: [User Management]
       summary: Get all users (Admin only)
       security:
         - bearerAuth: []
@@ -154,13 +132,10 @@ paths:
       responses:
         '200':
           description: List of users
-        '401':
-          description: Unauthorized
 
   /users/{id}:
     put:
-      tags:
-        - User Management
+      tags: [User Management]
       summary: Update a user (Admin only)
       security:
         - bearerAuth: []
@@ -171,7 +146,6 @@ paths:
           required: true
           schema:
             type: integer
-          description: User ID
       requestBody:
         required: true
         content:
@@ -187,14 +161,9 @@ paths:
       responses:
         '200':
           description: User updated
-        '400':
-          description: Invalid input
-        '404':
-          description: User not found
 
     delete:
-      tags:
-        - User Management
+      tags: [User Management]
       summary: Delete a user (Admin only)
       security:
         - bearerAuth: []
@@ -205,12 +174,270 @@ paths:
           required: true
           schema:
             type: integer
-          description: User ID
       responses:
         '200':
           description: User deleted
-        '404':
-          description: User not found
+
+  /api/posts:
+    get:
+      tags: [Posts]
+      summary: Get list of posts
+      parameters:
+        - name: country
+          in: query
+          schema:
+            type: string
+        - name: author
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of posts
+
+    post:
+      tags: [Posts]
+      summary: Create a new post
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                countryCode:
+                  type: string
+                visitDate:
+                  type: string
+                  format: date
+                media:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Post created
+
+  /api/posts/{id}:
+    get:
+      tags: [Posts]
+      summary: Get a single post by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Post data
+
+    put:
+      tags: [Posts]
+      summary: Update a post
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                countryCode:
+                  type: string
+                visitDate:
+                  type: string
+                  format: date
+                media:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Post updated
+
+    delete:
+      tags: [Posts]
+      summary: Delete a post
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Post deleted
+
+  /api/posts/like/{id}:
+    post:
+      tags: [Likes]
+      summary: Like or dislike a post
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_like:
+                  type: integer
+                  enum: [0, 1]
+      responses:
+        '200':
+          description: Reaction saved
+
+    delete:
+      tags: [Likes]
+      summary: Remove like/dislike
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Reaction removed
+
+  /api/posts/comments/{postId}:
+    get:
+      tags: [Comments]
+      summary: Get comments for a post
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of comments
+
+    post:
+      tags: [Comments]
+      summary: Add a comment
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+      responses:
+        '201':
+          description: Comment added
+
+  /api/posts/follow/{id}:
+    post:
+      tags: [Follows]
+      summary: Follow a user
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Followed user
+
+    delete:
+      tags: [Follows]
+      summary: Unfollow a user
+      security:
+        - bearerAuth: []
+        - csrfAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Unfollowed user
+
+  /api/posts/followers/{id}:
+    get:
+      tags: [Follows]
+      summary: Get list of followers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Followers list
+
+  /api/posts/following/{id}:
+    get:
+      tags: [Follows]
+      summary: Get list of following users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Following list
 
 components:
   securitySchemes:
@@ -218,12 +445,10 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
     csrfAuth:
       type: apiKey
       in: header
       name: x-csrf-token
-
     apiKeyAuth:
       type: apiKey
       in: header
