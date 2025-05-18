@@ -88,7 +88,7 @@ function createPost({ title, content, countryCode, visitDate, authorId, mediaUrl
 }
 
 /**
- * Update an existing post (only if the author matches)
+ * Update an existing post
  */
 function updatePost(id, authorId, { title, content, countryCode, visitDate, mediaUrl, capital, currency }) {
     return new Promise((resolve, reject) => {
@@ -116,7 +116,7 @@ function updatePost(id, authorId, { title, content, countryCode, visitDate, medi
 }
 
 /**
- * Delete a post (only if the author matches)
+ * Delete a post
  */
 function deletePost(id, authorId) {
     return new Promise((resolve, reject) => {
@@ -130,7 +130,9 @@ function deletePost(id, authorId) {
 }
 
 
-// --- Likes ---
+/**
+ * Like a post
+ */
 function likePost(userId, postId, isLike) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -145,6 +147,9 @@ function likePost(userId, postId, isLike) {
     });
 }
 
+/**
+ * Unlike a post
+ */
 function unlikePost(userId, postId) {
     return new Promise((resolve, reject) => {
         const sql = `DELETE FROM likes WHERE user_id = ? AND post_id = ?;`;
@@ -155,7 +160,9 @@ function unlikePost(userId, postId) {
     });
 }
 
-// --- Follows ---
+/**
+ * Follows an author
+ */
 function followUser(followerId, followingId) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -169,6 +176,9 @@ function followUser(followerId, followingId) {
     });
 }
 
+/**
+ * UnFollows an author
+ */
 function unfollowUser(followerId, followingId) {
     return new Promise((resolve, reject) => {
         const sql = `DELETE FROM follows WHERE follower_id = ? AND following_id = ?;`;
@@ -179,6 +189,9 @@ function unfollowUser(followerId, followingId) {
     });
 }
 
+/**
+ * Get followers list of author
+ */
 function getFollowers(userId) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -194,6 +207,9 @@ function getFollowers(userId) {
     });
 }
 
+/**
+ * Get following list of author
+ */
 function getFollowing(userId) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -209,7 +225,9 @@ function getFollowing(userId) {
     });
 }
 
-// --- Comments ---
+/**
+ * Get Comment list of author
+ */
 function getCommentsByPost(postId) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -226,6 +244,9 @@ function getCommentsByPost(postId) {
     });
 }
 
+/**
+ * Post a comment for the author
+ */
 function addComment(postId, userId, comment) {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -239,6 +260,9 @@ function addComment(postId, userId, comment) {
     });
 }
 
+/**
+ * Delete a comment
+ */
 function deleteComment(commentId, userId) {
     return new Promise((resolve, reject) => {
         const sql = `DELETE FROM comments WHERE id = ? AND user_id = ?`;
