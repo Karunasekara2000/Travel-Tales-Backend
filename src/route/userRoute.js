@@ -3,6 +3,9 @@ const {listUsers, updateUser, deleteUser} = require("../controller/userControlle
 
 const router = express.Router();
 
+/**
+ * Posts Routes
+ */
 router.get("/", listUsers);
 router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);

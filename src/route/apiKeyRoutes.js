@@ -4,10 +4,11 @@ const { generateKey, listKeys, updateKeyStatus, deleteKey} = require("../control
 const { authenticateJWT } = require("../middleware/authMiddleware");
 const { csrfProtection } = require("../middleware/csrfMiddleware");
 
-// Protect all routes with JWT + CSRF
+/**
+ * API Key Routes
+ */
 router.use(authenticateJWT);
 router.use(csrfProtection);
-
 router.post("/generate", generateKey);
 router.get("/list", listKeys);
 router.patch("/status/:id", updateKeyStatus);

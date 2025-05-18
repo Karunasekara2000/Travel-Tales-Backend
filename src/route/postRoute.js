@@ -10,29 +10,25 @@ const {} = require("../dao/postDao");
 
 const router = express.Router();
 
-// Public
-router.get("/", getPosts);
-router.get("/:id", getPostById);
 
 
+/**
+ * Posts Routes
+ */
 router.post("/", authenticateJWT, csrfProtection, upload.single("media"), createPost);
 router.put("/:id", authenticateJWT, csrfProtection, upload.single("media"), updatePost);
 router.delete("/:id", authenticateJWT, csrfProtection, deletePost);
-
-
-// --- Likes / Dislikes (Protected) ---
 router.post("/like/:id", authenticateJWT, csrfProtection, postLike);
 router.delete("/like/:id", authenticateJWT, csrfProtection, removeLikes);
-// --- Follow / Unfollow (Protected) ---
 router.post("/follow/:id", authenticateJWT, csrfProtection, followUsers);
 router.delete("/follow/:id", authenticateJWT, csrfProtection, unfollowUsers);
 router.get("/followers/:id", authenticateJWT, getFollowerList);
 router.get("/following/:id", authenticateJWT, getFollowingList);
-
-// --- Comments (Protected) ---
 router.post("/comments/:postId", authenticateJWT, csrfProtection, commentPosts);
 router.get("/comments/:postId",authenticateJWT, csrfProtection, getCommentList);
 router.delete("/comments/:id", authenticateJWT, csrfProtection, deleteCommentOnPost);
+router.get("/", getPosts);
+router.get("/:id", getPostById);
 
 
 module.exports = router;
