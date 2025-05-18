@@ -278,7 +278,6 @@ function deleteComment(commentId, userId) {
 
 module.exports = {
     getPosts,
-    getPostById,
     createPost,
     updatePost,
     deletePost,
